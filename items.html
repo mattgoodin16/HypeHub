@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop | HypeHub Supply</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-mark">HH</span>
+      <div class="logo-text">
+        <span class="logo-title">HypeHub Supply</span>
+        <span class="logo-tagline">Where Deals Meet Hype.</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="items.html" class="active">Shop</a>
+      <a href="about.html">About</a>
+      <a href="cart.html" class="cart-link">
+        <span>Cart</span>
+        <span class="cart-count-badge" id="cart-count">0</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="section">
+    <header class="section-header">
+      <h1>Shop the catalog</h1>
+      <p>All items available in sizes XS to XXL. Buy any 2+ items and get 10% off at checkout.</p>
+    </header>
+
+    <div class="product-grid">
+
+      <article class="product-card" 
+        data-id="polo-quarter-zip"
+        data-name="Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover"
+        data-price="39.99">
+        <div class="product-headline">
+          <h2>Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover</h2>
+          <p class="product-brand">Ralph Lauren</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$129.99</span>
+          <span class="new-price">$39.99</span>
+        </p>
+        <p class="product-note">Colors: Barclay Heather, Nutmeg Brown Heather, Polo Black, Cruise Navy, Sapphire Star, Soft Royal Heather, Cabana Purple, Scotch Pine Heather, Spring Wine Heather, RL 2000 Red</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Barclay Heather</option>
+              <option>Nutmeg Brown Heather</option>
+              <option>Polo Black</option>
+              <option>Cruise Navy</option>
+              <option>Sapphire Star</option>
+              <option>Soft Royal Heather</option>
+              <option>Cabana Purple</option>
+              <option>Scotch Pine Heather</option>
+              <option>Spring Wine Heather</option>
+              <option>RL 2000 Red</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card"
+        data-id="yeezy-slides"
+        data-name="adidas Yeezy Slides"
+        data-price="19.99">
+        <div class="product-headline">
+          <h2>adidas Yeezy Slides</h2>
+          <p class="product-brand">adidas</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$80.00</span>
+          <span class="new-price">$19.99</span>
+        </p>
+        <p class="product-note">Colors: Onyx, Slate Marine, Bone, Dark Onyx</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Onyx</option>
+              <option>Slate Marine</option>
+              <option>Bone</option>
+              <option>Dark Onyx</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card"
+        data-id="supreme-socks"
+        data-name="Supreme Hanes Crew Socks (4 Pack)"
+        data-price="7.99">
+        <div class="product-headline">
+          <h2>Supreme Hanes Crew Socks (4 Pack)</h2>
+          <p class="product-brand">Supreme</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$34.99</span>
+          <span class="new-price">$7.99</span>
+        </p>
+        <p class="product-note">Colors: White, Black</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>White</option>
+              <option>Black</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card" id="fog-hoodie"
+        data-id="fog-hoodie"
+        data-name="Fear of God Essentials Hoodie"
+        data-price="34.99">
+        <div class="product-headline">
+          <h2>Fear of God Essentials Hoodie</h2>
+          <p class="product-brand">Fear of God Essentials</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$109.99</span>
+          <span class="new-price">$34.99</span>
+        </p>
+        <p class="product-note">Colors: Jet Black, Cloud Dancer, Silver Cloud, Light Heather Grey</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Jet Black</option>
+              <option>Cloud Dancer</option>
+              <option>Silver Cloud</option>
+              <option>Light Heather Grey</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card"
+        data-id="supreme-beanie"
+        data-name="Supreme New Era Box Logo Beanie"
+        data-price="7.99">
+        <div class="product-headline">
+          <h2>Supreme New Era Box Logo Beanie</h2>
+          <p class="product-brand">Supreme x New Era</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$49.99</span>
+          <span class="new-price">$7.99</span>
+        </p>
+        <p class="product-note">Colors: Red, Black, Stone, Heather Grey</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Red</option>
+              <option>Black</option>
+              <option>Stone</option>
+              <option>Heather Grey</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card"
+        data-id="asics-gel-1130"
+        data-name="ASICS Gel-1130"
+        data-price="69.99">
+        <div class="product-headline">
+          <h2>ASICS Gel-1130</h2>
+          <p class="product-brand">ASICS</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$169.99</span>
+          <span class="new-price">$69.99</span>
+        </p>
+        <p class="product-note">Colors: Black Pure Silver, White Pure Silver</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Black Pure Silver</option>
+              <option>White Pure Silver</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+      <article class="product-card"
+        data-id="denimtears-sweatshirt"
+        data-name="Denim Tears The Cotton Wreath Sweatshirt"
+        data-price="59.99">
+        <div class="product-headline">
+          <h2>Denim Tears The Cotton Wreath Sweatshirt</h2>
+          <p class="product-brand">Denim Tears</p>
+        </div>
+        <p class="product-price">
+          <span class="old-price">$249.99</span>
+          <span class="new-price">$59.99</span>
+        </p>
+        <p class="product-note">Colors: Black, Black Monochrome, Red, Grey, Navy</p>
+        <div class="product-options">
+          <label>
+            Color
+            <select class="color-select">
+              <option>Black</option>
+              <option>Black Monochrome</option>
+              <option>Red</option>
+              <option>Grey</option>
+              <option>Navy</option>
+            </select>
+          </label>
+          <label>
+            Size
+            <select class="size-select">
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+        <button class="btn btn-primary add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </article>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© 2025 HypeHub Supply. All rights reserved.</p>
+      <p class="footer-meta">Mock storefront for demo purposes only.</p>
+    </div>
+  </footer>
+</body>
+</html>
