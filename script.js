@@ -1,114 +1,3 @@
-/* ========================================================
-   PRODUCT DATA (used by product.html and items.html)
-======================================================== */
-
-const PRODUCTS = {
-  "polo-quarter-zip": {
-    name: "Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover",
-    price: 39.99,
-    oldPrice: 129.99,
-    folder: "polo",
-    sizes: ["S","M","L","XL","XXL"],
-    colors: [
-      { label:"Barclay Heather", key:"barclay_heather" },
-      { label:"Nutmeg Brown Heather", key:"nutmeg_brown_heather" },
-      { label:"Polo Black", key:"polo_black" },
-      { label:"Cruise Navy", key:"cruise_navy" },
-      { label:"Sapphire Star", key:"sapphire_star" },
-      { label:"Soft Royal Heather", key:"soft_royal_heather" },
-      { label:"Cabana Purple", key:"cabana_purple" },
-      { label:"Scotch Pine Heather", key:"scotch_pine_heather" },
-      { label:"Spring Wine Heather", key:"spring_wine_heather" },
-      { label:"RL 2000 Red", key:"rl_2000_red" },
-    ]
-  },
-
-  "yeezy-slides": {
-    name: "adidas Yeezy Slides",
-    price: 19.99,
-    oldPrice: 80.00,
-    folder: "yeezy",
-    sizes: ["8","9","9.5","10","10.5","11","11.5","12","12.5","13"],
-    colors: [
-      { label:"Onyx", key:"onyx" },
-      { label:"Slate Marine", key:"slate_marine" },
-      { label:"Bone", key:"bone" },
-      { label:"Dark Onyx", key:"dark_onyx" }
-    ]
-  },
-
-  "supreme-socks": {
-    name: "Supreme Hanes Crew Socks (4 Pack)",
-    price: 7.99,
-    oldPrice: 34.99,
-    folder: "supreme_socks",
-    sizes: ["M","L"],
-    colors: [
-      { label:"White", key:"white" },
-      { label:"Black", key:"black" }
-    ]
-  },
-
-  "fog-hoodie": {
-    name: "Fear of God Essentials Hoodie",
-    price: 34.99,
-    oldPrice: 109.99,
-    folder: "fog",
-    sizes: ["XS","S","M","L","XL","XXL"],
-    colors: [
-      { label:"Jet Black", key:"jet_black" },
-      { label:"Cloud Dancer", key:"cloud_dancer" },
-      { label:"Silver Cloud", key:"silver_cloud" },
-      { label:"Light Heather Grey", key:"light_heather_grey" }
-    ]
-  },
-
-  "supreme-beanie": {
-    name: "Supreme New Era Box Logo Beanie",
-    price: 7.99,
-    oldPrice: 49.99,
-    folder: "beanie",
-    sizes: ["One Size"],
-    colors: [
-      { label:"Red", key:"red" },
-      { label:"Black", key:"black" },
-      { label:"Stone", key:"stone" },
-      { label:"Heather Grey", key:"heather_grey" }
-    ]
-  },
-
-  "asics-gel-1130": {
-    name: "ASICS Gel-1130",
-    price: 69.99,
-    oldPrice: 169.99,
-    folder: "asics",
-    sizes: ["8","9","9.5","10","10.5","11","11.5","12","12.5","13"],
-    colors: [
-      { label:"Black Pure Silver", key:"black_pure_silver_1" },
-      { label:"White Pure Silver", key:"white_pure_silver_1" }
-    ]
-  },
-
-  "denimtears-sweatshirt": {
-    name: "Denim Tears The Cotton Wreath Sweatshirt",
-    price: 59.99,
-    oldPrice: 249.99,
-    folder: "denimtears",
-    sizes: ["XS","S","M","L","XL"],
-    colors: [
-      { label:"Black", key:"black" },
-      { label:"Black Monochrome", key:"black_monochrome" },
-      { label:"Red", key:"red" },
-      { label:"Grey", key:"grey" },
-      { label:"Navy", key:"navy" }
-    ]
-  }
-};
-
-/* ========================================================
-   CART STORAGE
-======================================================== */
-
 const CART_KEY = 'hypehubCart';
 
 function loadCart() {
@@ -117,6 +6,28 @@ function loadCart() {
     return raw ? JSON.parse(raw) : [];
   } catch (e) {
     return [];
+  }
+}
+
+async function startCheckout(cart) {
+  const origin = window.location.origin;
+
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: cart, origin })
+  });
+
+  if (!res.ok) {
+    alert('Error starting checkout');
+    return;
+  }
+
+  const data = await res.json();
+  if (data.url) {
+    window.location.href = data.url;
+  } else {
+    alert('No checkout URL returned.');
   }
 }
 
@@ -135,22 +46,9 @@ function updateCartBadge() {
   badge.textContent = getCartCount(cart);
 }
 
-/* ========================================================
-   ADD TO CART
-======================================================== */
+/* Shared add-to-cart helper */
 
-function addToCartFromCard(card) {
-  const id = card.dataset.id;
-  const name = card.dataset.name;
-  const price = parseFloat(card.dataset.price);
-  const colorSelect = card.querySelector('.color-select');
-  const sizeSelect = card.querySelector('.size-select');
-  const qtyInput = card.querySelector('.qty-input');
-
-  const color = colorSelect ? colorSelect.value : 'Default';
-  const size = sizeSelect ? sizeSelect.value : 'One Size';
-  const quantity = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
-
+function addItemToCart({ id, name, price, color, size, quantity }) {
   const cart = loadCart();
   const existing = cart.find(
     (item) => item.id === id && item.color === color && item.size === size
@@ -164,18 +62,35 @@ function addToCartFromCard(card) {
 
   saveCart(cart);
   updateCartBadge();
-  showToast('Added to cart');
-}
 
-function showToast(text) {
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.textContent = text;
+  toast.textContent = 'Added to cart';
   document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('visible');
+  }, 10);
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 200);
+  }, 1600);
+}
 
-  setTimeout(() => toast.classList.add('visible'), 10);
-  setTimeout(() => toast.classList.remove('visible'), 1600);
-  setTimeout(() => toast.remove(), 1900);
+/* Cards on shop page */
+
+function addToCartFromCard(card) {
+  const id = card.dataset.id;
+  const name = card.dataset.name;
+  const price = parseFloat(card.dataset.price);
+  const colorSelect = card.querySelector('.color-select');
+  const sizeSelect = card.querySelector('.size-select');
+  const qtyInput = card.querySelector('.qty-input');
+
+  const color = colorSelect ? colorSelect.value : 'Default';
+  const size = sizeSelect ? sizeSelect.value : 'One Size';
+  const quantity = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
+
+  addItemToCart({ id, name, price, color, size, quantity });
 }
 
 function setupAddToCartButtons() {
@@ -190,82 +105,13 @@ function setupAddToCartButtons() {
   });
 }
 
-/* ========================================================
-   PRODUCT CARD CLICK HANDLER
-======================================================== */
-
-function initProductCardLinks() {
-  document.querySelectorAll('.product-card').forEach((card) => {
-    const id = card.dataset.id;
-    if (!id) return;
-
-    card.addEventListener('click', (e) => {
-      const t = e.target;
-
-      if (
-        t.closest('.add-to-cart') ||
-        t.closest('.color-bubble') ||
-        t.closest('.product-options') ||
-        t.tagName === 'SELECT' ||
-        t.tagName === 'INPUT' ||
-        t.tagName === 'OPTION'
-      ) {
-        return;
-      }
-
-      window.location.href = `product.html?id=${encodeURIComponent(id)}`;
-    });
-  });
-}
-
-/* ========================================================
-   COLOR BUBBLES ON SHOP PAGE (IMAGE SWAP)
-======================================================== */
-
-function initColorBubblesOnCards() {
-  const cards = document.querySelectorAll('.product-card');
-
-  cards.forEach((card) => {
-    const bubbles = card.querySelectorAll('.color-bubble');
-    const select = card.querySelector('.color-select');
-    const img = card.querySelector('.product-card-img');
-
-    if (!bubbles.length || !img || !select) return;
-
-    bubbles.forEach((bubble) => {
-      bubble.addEventListener('click', (e) => {
-        e.stopPropagation();
-
-        const color = bubble.dataset.color;
-
-        const optionMatch = Array.from(select.options).find(
-          (o) =>
-            o.text === color ||
-            o.text.startsWith(color) ||
-            color.startsWith(o.text)
-        );
-
-        if (optionMatch) select.value = optionMatch.text;
-
-        bubbles.forEach((b) => b.classList.remove('active'));
-        bubble.classList.add('active');
-
-        const key = color.toLowerCase().replace(/ /g, '_');
-        const folder = card.dataset.id.replace(/-.*/, '');
-
-        img.src = `images/${folder}/${key}.jpg`;
-      });
-    });
-  });
-}
-
-/* ========================================================
-   CART PAGE RENDERING
-======================================================== */
+/* Money formatting */
 
 function formatMoney(value) {
   return '$' + value.toFixed(2);
 }
+
+/* Cart page rendering */
 
 function renderCartPage() {
   const root = document.getElementById('cart-root');
@@ -301,7 +147,6 @@ function renderCartPage() {
           </p>
           <button class="link-btn remove-item">Remove</button>
         </div>
-
         <div class="cart-item-controls">
           <p class="cart-price">${formatMoney(item.price)}</p>
           <div class="qty-stepper">
@@ -318,33 +163,28 @@ function renderCartPage() {
 
   root.innerHTML = `
     <div class="cart-container">
-      <div class="cart-items">${rowsHtml}</div>
-
+      <div class="cart-items">
+        ${rowsHtml}
+      </div>
       <aside class="cart-summary">
         <h2>Order summary</h2>
-
         <div class="summary-row">
           <span>Subtotal</span>
           <span>${formatMoney(subtotal)}</span>
         </div>
-
         <div class="summary-row">
           <span>Items</span>
           <span>${totalItems}</span>
         </div>
-
         <div class="summary-row">
-          <span>Buy 2, get 10 percent off</span>
+          <span>Buy 2, get 10% off</span>
           <span>${discountEligible ? '-' + formatMoney(discountAmount) : 'Add 2+ items'}</span>
         </div>
-
         <div class="summary-row summary-total">
           <span>Total</span>
           <span>${formatMoney(total)}</span>
         </div>
-
         <button class="btn btn-primary summary-checkout">Checkout</button>
-        <p class="summary-note">Payments powered by Stripe.</p>
       </aside>
     </div>
   `;
@@ -364,25 +204,18 @@ function renderCartPage() {
   const checkoutBtn = root.querySelector('.summary-checkout');
   if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
-      const cart = loadCart();
-      if (!cart.length) {
-        alert('Your cart is empty.');
-        return;
-      }
-      startCheckout(cart);
+      alert('Checkout mockup only. Integrate with your payment provider here.');
     });
   }
+}
 
 function adjustQuantity(button, delta) {
   const row = button.closest('.cart-row');
   const index = parseInt(row.dataset.index, 10);
-
   const cart = loadCart();
   const item = cart[index];
   if (!item) return;
-
   item.quantity = Math.max(1, item.quantity + delta);
-
   saveCart(cart);
   updateCartBadge();
   renderCartPage();
@@ -391,165 +224,359 @@ function adjustQuantity(button, delta) {
 function removeItem(button) {
   const row = button.closest('.cart-row');
   const index = parseInt(row.dataset.index, 10);
-
   const cart = loadCart();
   cart.splice(index, 1);
-
   saveCart(cart);
   updateCartBadge();
   renderCartPage();
 }
 
-/* ========================================================
-   STRIPE CHECKOUT
-======================================================== */
+function initColorBubblesOnCards() {
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach((card) => {
+    const colorSelect = card.querySelector('.color-select');
+    const bubbles = card.querySelectorAll('.color-bubble');
+    const img = card.querySelector('.product-card-img');
+    const id = card.dataset.id;
+    const product = PRODUCTS[id];
 
-async function startCheckout(cart) {
-  const origin = window.location.origin;
+    if (!colorSelect || !bubbles.length) return;
 
-  const res = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items: cart, origin })
+    // Helper to update the card image based on a color label
+    function updateCardImageFromColor(label) {
+      if (!product || !img) return;
+      const match =
+        product.colors.find(
+          (c) =>
+            c.label === label ||
+            label.startsWith(c.label) ||
+            c.label.startsWith(label)
+        ) || product.colors[0];
+
+      if (!match) return;
+      img.src = `images/${product.folder}/${match.key}.jpg`;
+    }
+
+    // Initial active bubble based on current select value
+    const current = colorSelect.value;
+    let activeBubble =
+      Array.from(bubbles).find(
+        (b) =>
+          b.dataset.color === current ||
+          current.startsWith(b.dataset.color) ||
+          b.dataset.color.startsWith(current)
+      ) || bubbles[0];
+
+    bubbles.forEach((b) => b.classList.remove('active'));
+    if (activeBubble) {
+      activeBubble.classList.add('active');
+      updateCardImageFromColor(activeBubble.dataset.color);
+    }
+
+    bubbles.forEach((bubble) => {
+      bubble.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const label = bubble.dataset.color;
+
+        // Sync the select value
+        Array.from(colorSelect.options).forEach((opt) => {
+          if (opt.text === label || opt.text.startsWith(label) || label.startsWith(opt.text)) {
+            opt.selected = true;
+          }
+        });
+
+        // Active state
+        bubbles.forEach((b) => b.classList.remove('active'));
+        bubble.classList.add('active');
+
+        // Swap card image
+        updateCardImageFromColor(label);
+      });
+    });
   });
+}
+/* Make "View details" buttons go to product page */
 
-  const data = await res.json();
+function initProductCardLinks() {
+  document.querySelectorAll('.product-card').forEach((card) => {
+    const id = card.dataset.id;
+    if (!id) return;
 
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert('Error starting checkout.');
-  }
+    card.addEventListener('click', (e) => {
+      const target = e.target;
+
+      // Do NOT navigate when clicking these
+      if (
+        target.closest('.add-to-cart') ||
+        target.closest('.color-bubble') ||
+        target.closest('.product-options') ||
+        target.closest('select') ||
+        target.closest('input')
+      ) {
+        return;
+      }
+
+      window.location.href = `product.html?id=${encodeURIComponent(id)}`;
+    });
+  });
 }
 
-/* ========================================================
-   PRODUCT PAGE BUILDER
-======================================================== */
+/* Product data for product.html */
+
+const PRODUCTS = {
+  'polo-quarter-zip': {
+    id: 'polo-quarter-zip',
+    name: 'Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover',
+    brand: 'Ralph Lauren',
+    price: 39.99,
+    compareAt: 129.99,
+    folder: 'polo',
+    colors: [
+      { label: 'Barclay Heather', key: 'barclay_heather', swatch: '#b8a99a' },
+      { label: 'Nutmeg Brown Heather', key: 'nutmeg_brown_heather', swatch: '#8b5e3c' },
+      { label: 'Polo Black', key: 'polo_black', swatch: '#111111' },
+      { label: 'Cruise Navy', key: 'cruise_navy', swatch: '#0b1f51' },
+      { label: 'Sapphire Star', key: 'sapphire_star', swatch: '#335fff' },
+      { label: 'Soft Royal Heather', key: 'soft_royal_heather', swatch: '#6b7ed2' },
+      { label: 'Cabana Purple', key: 'cabana_purple', swatch: '#7327c8' },
+      { label: 'Scotch Pine Heather', key: 'scotch_pine_heather', swatch: '#1c4f39' },
+      { label: 'Spring Wine Heather', key: 'spring_wine_heather', swatch: '#7a304a' },
+      { label: 'RL 2000 Red', key: 'rl_2000_red', swatch: '#c4001d' }
+    ],
+    sizes: ['XS(Sold Out)', 'S', 'M', 'L', 'XL', 'XXL'],
+    description:
+      'Estate-rib quarter-zip pullover with classic Polo detailing and a clean, easy-to-layer fit.'
+  },
+  'yeezy-slides': {
+    id: 'yeezy-slides',
+    name: 'adidas Yeezy Slides',
+    brand: 'adidas',
+    price: 19.99,
+    compareAt: 80,
+    folder: 'yeezy',
+    colors: [
+      { label: 'Onyx', key: 'onyx', swatch: '#111111' },
+      { label: 'Slate Marine', key: 'slate_marine', swatch: '#495b74' },
+      { label: 'Bone', key: 'bone', swatch: '#d4cbb8' },
+      { label: 'Dark Onyx', key: 'dark_onyx', swatch: '#050608' }
+    ],
+    sizes: [
+      '8',
+      '9',
+      '9.5',
+      '10',
+      '10.5',
+      '11 (Low on stock)',
+      '11.5',
+      '12',
+      '12.5',
+      '13 (Low on stock)'
+    ],
+    description: 'Minimal, comfy slides with the signature Yeezy look and cushioned step.'
+  },
+  'supreme-socks': {
+    id: 'supreme-socks',
+    name: 'Supreme Hanes Crew Socks (4 Pack)',
+    brand: 'Supreme',
+    price: 7.99,
+    compareAt: 34.99,
+    folder: 'supreme_socks',
+    colors: [
+      { label: 'White', key: 'white', swatch: '#e5e5e5' },
+      { label: 'Black', key: 'black', swatch: '#111111' }
+    ],
+    sizes: ['M', 'L'],
+    description:
+      'Four-pack of crew socks with subtle Supreme branding, built on a Hanes base for everyday comfort.'
+  },
+  'fog-hoodie': {
+    id: 'fog-hoodie',
+    name: 'Fear of God Essentials Hoodie',
+    brand: 'Fear of God Essentials',
+    price: 34.99,
+    compareAt: 109.99,
+    folder: 'fog',
+    colors: [
+      { label: 'Jet Black', key: 'jet_black', swatch: '#111111' },
+      { label: 'Cloud Dancer', key: 'cloud_dancer', swatch: '#f5f5f5' },
+      { label: 'Silver Cloud', key: 'silver_cloud', swatch: '#c4c4c4' },
+      { label: 'Light Heather Grey', key: 'light_heather_grey', swatch: '#d4d4d8' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL (Low on stock)', 'XXL (Low on stock)'],
+    description:
+      'Relaxed fit Essentials hoodie with clean branding and heavyweight fleece for everyday wear.'
+  },
+  'supreme-beanie': {
+    id: 'supreme-beanie',
+    name: 'Supreme New Era Box Logo Beanie',
+    brand: 'Supreme x New Era',
+    price: 7.99,
+    compareAt: 49.99,
+    folder: 'beanie',
+    colors: [
+      { label: 'Red', key: 'red', swatch: '#c4001d' },
+      { label: 'Black', key: 'black', swatch: '#111111' },
+      { label: 'Stone', key: 'stone', swatch: '#c9c4b9' },
+      { label: 'Heather Grey', key: 'heather_grey', swatch: '#d4d4d8' }
+    ],
+    sizes: ['One Size Fits All'],
+    description: 'Classic box logo beanie collab with New Era, perfect for cold-weather fits.'
+  },
+  'asics-gel-1130': {
+    id: 'asics-gel-1130',
+    name: 'ASICS Gel-1130',
+    brand: 'ASICS',
+    price: 69.99,
+    compareAt: 169.99,
+    folder: 'asics',
+    colors: [
+      { label: 'Black Pure Silver', key: 'black_pure_silver_1', swatch: '#111111' },
+      { label: 'White Pure Silver', key: 'white_pure_silver_1', swatch: '#e5e5e5' }
+    ],
+    sizes: ['8', '9', '9.5', '10 (Low on stock)', '10.5', '11', '11.5', '12', '12.5', '13'],
+    description:
+      'Retro runner from ASICS with Gel cushioning, breathable mesh, and a Y2K-friendly silhouette.'
+  },
+  'denimtears-sweatshirt': {
+    id: 'denimtears-sweatshirt',
+    name: 'Denim Tears The Cotton Wreath Sweatshirt',
+    brand: 'Denim Tears',
+    price: 59.99,
+    compareAt: 249.99,
+    folder: 'denimtears',
+    colors: [
+      { label: 'Black', key: 'black', swatch: '#111111' },
+      { label: 'Black Monochrome', key: 'black_monochrome', swatch: '#444444' },
+      { label: 'Red', key: 'red', swatch: '#c4001d' },
+      { label: 'Grey', key: 'grey', swatch: '#9ca3af' },
+      { label: 'Navy', key: 'navy', swatch: '#111827' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL(Sold Out)'],
+    description:
+      'Statement crewneck featuring the Cotton Wreath motif, a staple piece in Denim Tears collections.'
+  }
+};
+
+/* Product page logic: image left, details right, best sellers */
 
 function initProductPage() {
-  if (!location.pathname.includes("product.html")) return;
-
-  const root = document.getElementById("product-root");
+  const root = document.querySelector('[data-product-page]');
   if (!root) return;
 
   const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  const product = PRODUCTS[id];
+  const id = params.get('id');
+  const product = id ? PRODUCTS[id] : null;
 
-  if (!product) {
-    root.innerHTML = "<h2>Product not found.</h2>";
+  const imageEl = document.getElementById('product-main-image');
+  const brandEl = document.getElementById('product-brand');
+  const titleEl = document.getElementById('product-title');
+  const priceEl = document.getElementById('product-price');
+  const compareEl = document.getElementById('product-compare');
+  const colorContainer = document.getElementById('product-color-bubbles');
+  const sizeSelect = document.getElementById('product-size-select');
+  const qtyInput = document.getElementById('product-qty');
+  const addBtn = document.getElementById('product-add-to-cart');
+  const descEl = document.getElementById('product-description');
+  const bestGrid = document.getElementById('best-seller-grid');
+
+  if (!product || !imageEl || !brandEl || !titleEl) {
+    if (root) {
+      root.innerHTML = `
+        <div class="empty-cart">
+          <p>Product not found.</p>
+          <a href="items.html" class="btn btn-primary">Back to shop</a>
+        </div>
+      `;
+    }
     return;
   }
 
+  // Base info
+  brandEl.textContent = product.brand;
+  titleEl.textContent = product.name;
+  priceEl.textContent = formatMoney(product.price);
+  compareEl.textContent = formatMoney(product.compareAt);
+  descEl.textContent = product.description || '';
+
+  // Default color = first
   const defaultColor = product.colors[0];
+  imageEl.src = `images/${product.folder}/${defaultColor.key}.jpg`;
+  imageEl.alt = product.name;
 
-  root.innerHTML = `
-    <div class="product-page-grid">
-      <div class="product-page-image-wrap">
-        <img id="product-main-img" src="images/${product.folder}/${defaultColor.key}.jpg" class="product-page-img">
-      </div>
+  // Build color bubbles
+  colorContainer.innerHTML = product.colors
+    .map(
+      (c, index) => `
+      <button type="button"
+        class="color-bubble ${index === 0 ? 'active' : ''}"
+        data-color="${c.label}"
+        data-img="images/${product.folder}/${c.key}.jpg"
+        style="background-color:${c.swatch};"
+        title="${c.label}">
+      </button>
+    `
+    )
+    .join('');
 
-      <div class="product-page-info">
-        <h1>${product.name}</h1>
+  // Build size options
+  sizeSelect.innerHTML = product.sizes
+    .map((s) => `<option>${s}</option>`)
+    .join('');
 
-        <p class="product-price">
-          <span class="old-price">$${product.oldPrice}</span>
-          <span class="new-price">$${product.price}</span>
-        </p>
-
-        <label>Color</label>
-        <div class="color-bubbles" id="product-color-bubbles">
-          ${product.colors.map(c => `
-            <button class="color-bubble" data-key="${c.key}" data-label="${c.label}"></button>
-          `).join("")}
-        </div>
-
-        <label>Size</label>
-        <select id="product-size-select" class="size-select">
-          ${product.sizes.map(s => `<option>${s}</option>`).join("")}
-        </select>
-
-        <label>Qty</label>
-        <input id="product-qty" type="number" min="1" value="1" class="qty-input">
-
-        <button id="product-add-btn" class="btn btn-primary">Add to Cart</button>
-      </div>
-    </div>
-
-    <h2 style="margin-top:40px;">Shop Best Sellers</h2>
-    <div class="product-grid" id="best-sellers-grid"></div>
-  `;
-
-  const img = document.getElementById("product-main-img");
-  const bubbles = document.querySelectorAll("#product-color-bubbles .color-bubble");
-
-  bubbles[0].classList.add("active");
-
-  bubbles.forEach(b => {
-    b.addEventListener("click", () => {
-      bubbles.forEach(x => x.classList.remove("active"));
-      b.classList.add("active");
-      img.src = `images/${product.folder}/${b.dataset.key}.jpg`;
+  // Color bubble click = swap image
+  colorContainer.querySelectorAll('.color-bubble').forEach((bubble) => {
+    bubble.addEventListener('click', () => {
+      colorContainer.querySelectorAll('.color-bubble').forEach((b) => b.classList.remove('active'));
+      bubble.classList.add('active');
+      const src = bubble.dataset.img;
+      if (src) {
+        imageEl.src = src;
+      }
     });
   });
 
-  document.getElementById("product-add-btn").addEventListener("click", () => {
-    const size = document.getElementById("product-size-select").value;
-    const qty = parseInt(document.getElementById("product-qty").value);
-    const selectedBubble = document.querySelector(".color-bubble.active");
+  // Add to cart from product page
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      const activeBubble = colorContainer.querySelector('.color-bubble.active');
+      const color = activeBubble ? activeBubble.dataset.color : defaultColor.label;
+      const size = sizeSelect.value || 'One Size';
+      const quantity = Math.max(1, parseInt(qtyInput.value, 10) || 1);
 
-    addToCart({
-      id,
-      name: product.name,
-      price: product.price,
-      color: selectedBubble.dataset.label,
-      size,
-      quantity: qty
+      addItemToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        color,
+        size,
+        quantity
+      });
     });
+  }
 
-    showToast("Added to cart");
-  });
+  // Best sellers: 4 random other products
+  if (bestGrid) {
+    const otherIds = Object.keys(PRODUCTS).filter((key) => key !== product.id);
+    const shuffled = otherIds.sort(() => 0.5 - Math.random()).slice(0, 4);
 
-  renderBestSellers(id);
+    bestGrid.innerHTML = shuffled
+      .map((pid) => {
+        const p = PRODUCTS[pid];
+        const thumbColor = p.colors[0];
+        const imgSrc = `images/${p.folder}/${thumbColor.key}.jpg`;
+        return `
+        <a href="product.html?id=${encodeURIComponent(p.id)}" class="best-seller-card">
+          <img src="${imgSrc}" alt="${p.name}">
+          <p class="best-seller-name">${p.name}</p>
+          <p class="best-seller-price">${formatMoney(p.price)}</p>
+        </a>
+      `;
+      })
+      .join('');
+  }
 }
 
-function addToCart(item) {
-  const cart = loadCart();
-  const existing = cart.find(
-    (x) => x.id === item.id && x.color === item.color && x.size === item.size
-  );
-
-  if (existing) existing.quantity += item.quantity;
-  else cart.push(item);
-
-  saveCart(cart);
-  updateCartBadge();
-}
-
-function renderBestSellers(excludeId) {
-  const wrap = document.getElementById("best-sellers-grid");
-
-  const ids = Object.keys(PRODUCTS).filter(i => i !== excludeId).slice(0,4);
-
-  wrap.innerHTML = ids.map(id => {
-    const p = PRODUCTS[id];
-    return `
-      <article class="product-card" data-id="${id}">
-        <img class="product-card-img" src="images/${p.folder}/${p.colors[0].key}.jpg">
-        <h3>${p.name}</h3>
-        <p class="product-price">
-          <span class="old-price">$${p.oldPrice}</span>
-          <span class="new-price">$${p.price}</span>
-        </p>
-      </article>
-    `;
-  }).join("");
-
-  initProductCardLinks();
-}
-/* ========================================================
-   INIT
-======================================================== */
+/* DOM READY */
 
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
