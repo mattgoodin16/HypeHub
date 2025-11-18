@@ -210,14 +210,31 @@ function removeItem(button) {
   renderCartPage();
 }
 
-/* Color bubbles on shop page: sync with selects */
-
 function initColorBubblesOnCards() {
   const cards = document.querySelectorAll('.product-card');
   cards.forEach((card) => {
     const colorSelect = card.querySelector('.color-select');
     const bubbles = card.querySelectorAll('.color-bubble');
+    const img = card.querySelector('.product-card-img');
+    const id = card.dataset.id;
+    const product = PRODUCTS[id];
+
     if (!colorSelect || !bubbles.length) return;
+
+    // Helper to update the card image based on a color label
+    function updateCardImageFromColor(label) {
+      if (!product || !img) return;
+      const match =
+        product.colors.find(
+          (c) =>
+            c.label === label ||
+            label.startsWith(c.label) ||
+            c.label.startsWith(label)
+        ) || product.colors[0];
+
+      if (!match) return;
+      img.src = `images/${product.folder}/${match.key}.jpg`;
+    }
 
     // Initial active bubble based on current select value
     const current = colorSelect.value;
@@ -230,36 +247,54 @@ function initColorBubblesOnCards() {
       ) || bubbles[0];
 
     bubbles.forEach((b) => b.classList.remove('active'));
-    if (activeBubble) activeBubble.classList.add('active');
+    if (activeBubble) {
+      activeBubble.classList.add('active');
+      updateCardImageFromColor(activeBubble.dataset.color);
+    }
 
     bubbles.forEach((bubble) => {
       bubble.addEventListener('click', (e) => {
         e.stopPropagation();
         const label = bubble.dataset.color;
 
-        // Try to match option by exact text or prefix
+        // Sync the select value
         Array.from(colorSelect.options).forEach((opt) => {
           if (opt.text === label || opt.text.startsWith(label) || label.startsWith(opt.text)) {
             opt.selected = true;
           }
         });
 
+        // Active state
         bubbles.forEach((b) => b.classList.remove('active'));
         bubble.classList.add('active');
+
+        // Swap card image
+        updateCardImageFromColor(label);
       });
     });
   });
 }
-
 /* Make "View details" buttons go to product page */
 
 function initProductCardLinks() {
   document.querySelectorAll('.product-card').forEach((card) => {
     const id = card.dataset.id;
-    const viewBtn = card.querySelector('.view-details');
-    if (!id || !viewBtn) return;
-    viewBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
+    if (!id) return;
+
+    card.addEventListener('click', (e) => {
+      const target = e.target;
+
+      // Do NOT navigate when clicking these
+      if (
+        target.closest('.add-to-cart') ||
+        target.closest('.color-bubble') ||
+        target.closest('.product-options') ||
+        target.closest('select') ||
+        target.closest('input')
+      ) {
+        return;
+      }
+
       window.location.href = `product.html?id=${encodeURIComponent(id)}`;
     });
   });
