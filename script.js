@@ -372,7 +372,6 @@ function renderCartPage() {
       startCheckout(cart);
     });
   }
-}
 
 function adjustQuantity(button, delta) {
   const row = button.closest('.cart-row');
