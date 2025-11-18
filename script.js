@@ -201,12 +201,16 @@ function renderCartPage() {
     btn.addEventListener('click', () => removeItem(btn));
   });
 
-  const checkoutBtn = root.querySelector('.summary-checkout');
-  if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', () => {
-      alert('Checkout mockup only. Integrate with your payment provider here.');
-    });
-  }
+ const checkoutBtn = root.querySelector('.summary-checkout');
+if (checkoutBtn) {
+  checkoutBtn.addEventListener('click', () => {
+    const cart = loadCart();
+    if (!cart.length) {
+      alert('Your cart is empty.');
+      return;
+    }
+    startCheckout(cart);
+  });
 }
 
 function adjustQuantity(button, delta) {
