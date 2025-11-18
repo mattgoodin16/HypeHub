@@ -930,6 +930,18 @@ body {
     justify-content: space-between;
     align-items: center;
   }
+
+.product-card {
+  cursor: pointer;
+}
+
+.product-card .add-to-cart,
+.product-card .color-bubble,
+.product-card .product-options select,
+.product-card .product-options input {
+  cursor: auto;
+}
+  
   /* Shop grid product images */
 
   .product-card-img {
