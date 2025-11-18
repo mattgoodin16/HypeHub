@@ -9,6 +9,28 @@ function loadCart() {
   }
 }
 
+async function startCheckout(cart) {
+  const origin = window.location.origin;
+
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: cart, origin })
+  });
+
+  if (!res.ok) {
+    alert('Error starting checkout');
+    return;
+  }
+
+  const data = await res.json();
+  if (data.url) {
+    window.location.href = data.url;
+  } else {
+    alert('No checkout URL returned.');
+  }
+}
+
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
@@ -162,8 +184,7 @@ function renderCartPage() {
           <span>Total</span>
           <span>${formatMoney(total)}</span>
         </div>
-        <button class="btn btn-primary summary-checkout">Checkout (Mock)</button>
-        <p class="summary-note">This is a front-end demo only. No real payments are processed.</p>
+        <button class="btn btn-primary summary-checkout">Checkout</button>
       </aside>
     </div>
   `;
