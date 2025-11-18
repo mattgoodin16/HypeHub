@@ -1,4 +1,111 @@
 /* ========================================================
+   PRODUCT DATA (used by product.html and items.html)
+======================================================== */
+
+const PRODUCTS = {
+  "polo-quarter-zip": {
+    name: "Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover",
+    price: 39.99,
+    oldPrice: 129.99,
+    folder: "polo",
+    sizes: ["S","M","L","XL","XXL"],
+    colors: [
+      { label:"Barclay Heather", key:"barclay_heather" },
+      { label:"Nutmeg Brown Heather", key:"nutmeg_brown_heather" },
+      { label:"Polo Black", key:"polo_black" },
+      { label:"Cruise Navy", key:"cruise_navy" },
+      { label:"Sapphire Star", key:"sapphire_star" },
+      { label:"Soft Royal Heather", key:"soft_royal_heather" },
+      { label:"Cabana Purple", key:"cabana_purple" },
+      { label:"Scotch Pine Heather", key:"scotch_pine_heather" },
+      { label:"Spring Wine Heather", key:"spring_wine_heather" },
+      { label:"RL 2000 Red", key:"rl_2000_red" },
+    ]
+  },
+
+  "yeezy-slides": {
+    name: "adidas Yeezy Slides",
+    price: 19.99,
+    oldPrice: 80.00,
+    folder: "yeezy",
+    sizes: ["8","9","9.5","10","10.5","11","11.5","12","12.5","13"],
+    colors: [
+      { label:"Onyx", key:"onyx" },
+      { label:"Slate Marine", key:"slate_marine" },
+      { label:"Bone", key:"bone" },
+      { label:"Dark Onyx", key:"dark_onyx" }
+    ]
+  },
+
+  "supreme-socks": {
+    name: "Supreme Hanes Crew Socks (4 Pack)",
+    price: 7.99,
+    oldPrice: 34.99,
+    folder: "supreme_socks",
+    sizes: ["M","L"],
+    colors: [
+      { label:"White", key:"white" },
+      { label:"Black", key:"black" }
+    ]
+  },
+
+  "fog-hoodie": {
+    name: "Fear of God Essentials Hoodie",
+    price: 34.99,
+    oldPrice: 109.99,
+    folder: "fog",
+    sizes: ["XS","S","M","L","XL","XXL"],
+    colors: [
+      { label:"Jet Black", key:"jet_black" },
+      { label:"Cloud Dancer", key:"cloud_dancer" },
+      { label:"Silver Cloud", key:"silver_cloud" },
+      { label:"Light Heather Grey", key:"light_heather_grey" }
+    ]
+  },
+
+  "supreme-beanie": {
+    name: "Supreme New Era Box Logo Beanie",
+    price: 7.99,
+    oldPrice: 49.99,
+    folder: "beanie",
+    sizes: ["One Size"],
+    colors: [
+      { label:"Red", key:"red" },
+      { label:"Black", key:"black" },
+      { label:"Stone", key:"stone" },
+      { label:"Heather Grey", key:"heather_grey" }
+    ]
+  },
+
+  "asics-gel-1130": {
+    name: "ASICS Gel-1130",
+    price: 69.99,
+    oldPrice: 169.99,
+    folder: "asics",
+    sizes: ["8","9","9.5","10","10.5","11","11.5","12","12.5","13"],
+    colors: [
+      { label:"Black Pure Silver", key:"black_pure_silver_1" },
+      { label:"White Pure Silver", key:"white_pure_silver_1" }
+    ]
+  },
+
+  "denimtears-sweatshirt": {
+    name: "Denim Tears The Cotton Wreath Sweatshirt",
+    price: 59.99,
+    oldPrice: 249.99,
+    folder: "denimtears",
+    sizes: ["XS","S","M","L","XL"],
+    colors: [
+      { label:"Black", key:"black" },
+      { label:"Black Monochrome", key:"black_monochrome" },
+      { label:"Red", key:"red" },
+      { label:"Grey", key:"grey" },
+      { label:"Navy", key:"navy" }
+    ]
+  }
+};
+
+/* ========================================================
    CART STORAGE
 ======================================================== */
 
@@ -317,13 +424,130 @@ async function startCheckout(cart) {
 }
 
 /* ========================================================
-   PRODUCT PAGE (optional, safe to keep)
+   PRODUCT PAGE BUILDER
 ======================================================== */
 
 function initProductPage() {
-  if (!location.href.includes('product.html')) return;
+  if (!location.pathname.includes("product.html")) return;
+
+  const root = document.getElementById("product-root");
+  if (!root) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const product = PRODUCTS[id];
+
+  if (!product) {
+    root.innerHTML = "<h2>Product not found.</h2>";
+    return;
+  }
+
+  const defaultColor = product.colors[0];
+
+  root.innerHTML = `
+    <div class="product-page-grid">
+      <div class="product-page-image-wrap">
+        <img id="product-main-img" src="images/${product.folder}/${defaultColor.key}.jpg" class="product-page-img">
+      </div>
+
+      <div class="product-page-info">
+        <h1>${product.name}</h1>
+
+        <p class="product-price">
+          <span class="old-price">$${product.oldPrice}</span>
+          <span class="new-price">$${product.price}</span>
+        </p>
+
+        <label>Color</label>
+        <div class="color-bubbles" id="product-color-bubbles">
+          ${product.colors.map(c => `
+            <button class="color-bubble" data-key="${c.key}" data-label="${c.label}"></button>
+          `).join("")}
+        </div>
+
+        <label>Size</label>
+        <select id="product-size-select" class="size-select">
+          ${product.sizes.map(s => `<option>${s}</option>`).join("")}
+        </select>
+
+        <label>Qty</label>
+        <input id="product-qty" type="number" min="1" value="1" class="qty-input">
+
+        <button id="product-add-btn" class="btn btn-primary">Add to Cart</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:40px;">Shop Best Sellers</h2>
+    <div class="product-grid" id="best-sellers-grid"></div>
+  `;
+
+  const img = document.getElementById("product-main-img");
+  const bubbles = document.querySelectorAll("#product-color-bubbles .color-bubble");
+
+  bubbles[0].classList.add("active");
+
+  bubbles.forEach(b => {
+    b.addEventListener("click", () => {
+      bubbles.forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      img.src = `images/${product.folder}/${b.dataset.key}.jpg`;
+    });
+  });
+
+  document.getElementById("product-add-btn").addEventListener("click", () => {
+    const size = document.getElementById("product-size-select").value;
+    const qty = parseInt(document.getElementById("product-qty").value);
+    const selectedBubble = document.querySelector(".color-bubble.active");
+
+    addToCart({
+      id,
+      name: product.name,
+      price: product.price,
+      color: selectedBubble.dataset.label,
+      size,
+      quantity: qty
+    });
+
+    showToast("Added to cart");
+  });
+
+  renderBestSellers(id);
 }
 
+function addToCart(item) {
+  const cart = loadCart();
+  const existing = cart.find(
+    (x) => x.id === item.id && x.color === item.color && x.size === item.size
+  );
+
+  if (existing) existing.quantity += item.quantity;
+  else cart.push(item);
+
+  saveCart(cart);
+  updateCartBadge();
+}
+
+function renderBestSellers(excludeId) {
+  const wrap = document.getElementById("best-sellers-grid");
+
+  const ids = Object.keys(PRODUCTS).filter(i => i !== excludeId).slice(0,4);
+
+  wrap.innerHTML = ids.map(id => {
+    const p = PRODUCTS[id];
+    return `
+      <article class="product-card" data-id="${id}">
+        <img class="product-card-img" src="images/${p.folder}/${p.colors[0].key}.jpg">
+        <h3>${p.name}</h3>
+        <p class="product-price">
+          <span class="old-price">$${p.oldPrice}</span>
+          <span class="new-price">$${p.price}</span>
+        </p>
+      </article>
+    `;
+  }).join("");
+
+  initProductCardLinks();
+}
 /* ========================================================
    INIT
 ======================================================== */
