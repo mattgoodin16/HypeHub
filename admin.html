@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin | HypeHub Supply</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-wrap {
+      padding: 24px 7vw;
+    }
+    .admin-login {
+      max-width: 320px;
+      margin: 40px auto;
+      padding: 18px 16px;
+      border-radius: 18px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.5);
+    }
+    .admin-login h1 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    .admin-login input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 6px 10px;
+      background: rgba(15,23,42,0.95);
+      color: #f9fafb;
+      margin-bottom: 10px;
+    }
+    .admin-orders {
+      margin-top: 24px;
+    }
+    .admin-order-card {
+      border-radius: 18px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.5);
+      padding: 14px 14px 10px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+    .admin-order-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .admin-order-items {
+      margin-top: 6px;
+      padding-left: 14px;
+      color: #9ca3af;
+    }
+    .admin-order-items li {
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <div id="admin-login" class="admin-login">
+      <h1>Admin Login</h1>
+      <p style="font-size:0.85rem; color:#9ca3af;">Enter the admin password to view recent orders.</p>
+      <input type="password" id="admin-password" placeholder="Admin password">
+      <button class="btn btn-primary" id="admin-login-btn">Enter</button>
+      <p id="admin-error" style="color:#f97373; font-size:0.8rem; margin-top:6px; display:none;">Wrong password.</p>
+    </div>
+
+    <div id="admin-orders" class="admin-orders" style="display:none;">
+      <h2>Recent orders</h2>
+      <div id="orders-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const loginBox = document.getElementById('admin-login');
+    const ordersWrap = document.getElementById('admin-orders');
+    const ordersList = document.getElementById('orders-list');
+    const passInput = document.getElementById('admin-password');
+    const loginBtn = document.getElementById('admin-login-btn');
+    const errorEl = document.getElementById('admin-error');
+
+    async function fetchOrders(password) {
+      const res = await fetch('/api/admin-orders', {
+        headers: {
+          'x-admin-key': password
+        }
+      });
+
+      if (res.status === 401) {
+        throw new Error('Unauthorized');
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch');
+      }
+
+      const data = await res.json();
+      return data.orders || [];
+    }
+
+    function renderOrders(orders) {
+      if (!orders.length) {
+        ordersList.innerHTML = '<p>No orders yet.</p>';
+        return;
+      }
+
+      ordersList.innerHTML = orders.map(o => {
+        const total = (o.amount_total / 100).toFixed(2);
+        const created = new Date(o.created_at).toLocaleString();
+        const email = o.email || 'No email';
+
+        const itemsHtml = (o.items || [])
+          .map(i => {
+            const lineTotal = (i.unit_amount * i.quantity / 100).toFixed(2);
+            return \`<li>\${i.quantity} × \${i.name} (\${i.color || '-'}, \${i.size || '-'}) - $\${lineTotal}</li>\`;
+          })
+          .join('');
+
+        return \`
+          <div class="admin-order-card">
+            <div class="admin-order-header">
+              <div>
+                <strong>$\${total}</strong>
+                <div style="font-size:0.8rem; color:#9ca3af;">\${email}</div>
+              </div>
+              <div style="font-size:0.75rem; color:#9ca3af; text-align:right;">
+                <div>\${created}</div>
+                <div style="opacity:0.8;">\${o.currency?.toUpperCase() || 'USD'}</div>
+              </div>
+            </div>
+            <ul class="admin-order-items">\${itemsHtml}</ul>
+          </div>
+        \`;
+      }).join('');
+    }
+
+    loginBtn.addEventListener('click', async () => {
+      const pass = passInput.value.trim();
+      if (!pass) return;
+
+      errorEl.style.display = 'none';
+
+      try {
+        const orders = await fetchOrders(pass);
+        loginBox.style.display = 'none';
+        ordersWrap.style.display = 'block';
+        renderOrders(orders);
+      } catch (err) {
+        errorEl.style.display = 'block';
+      }
+    });
+
+    passInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        loginBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
