@@ -255,7 +255,7 @@ function initColorBubblesOnCards() {
         ) || product.colors[0];
 
       if (!match) return;
-      img.src = `images/${product.folder}/${match.key}.jpg`;
+      img.src = `/images/${product.folder}/${match.key}.jpg`;
     }
 
     // Initial active bubble based on current select value
@@ -501,7 +501,7 @@ function initProductPage() {
 
   // Default color = first
   const defaultColor = product.colors[0];
-  imageEl.src = `images/${product.folder}/${defaultColor.key}.jpg`;
+  imageEl.src = `/images/${product.folder}/${defaultColor.key}.jpg`;
   imageEl.alt = product.name;
 
   // Build color bubbles
@@ -511,7 +511,7 @@ function initProductPage() {
       <button type="button"
         class="color-bubble ${index === 0 ? 'active' : ''}"
         data-color="${c.label}"
-        data-img="images/${product.folder}/${c.key}.jpg"
+        data-img="/images/${product.folder}/${c.key}.jpg"
         style="background-color:${c.swatch};"
         title="${c.label}">
       </button>
