@@ -204,7 +204,8 @@ function renderCartPage() {
   const checkoutBtn = root.querySelector('.summary-checkout');
   if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
-      alert('Checkout mockup only. Integrate with your payment provider here.');
+     const cart = loadCart();
+startCheckout(cart);
     });
   }
 }
