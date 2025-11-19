@@ -51,4 +51,7 @@ export async function GET(req) {
   }));
 
   return new Response(JSON.stringify({ orders: combined }), { status: 200 });
+  export const config = {
+  runtime: 'nodejs'
+};
 }
