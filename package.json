@@ -1,0 +1,15 @@
+{
+  "name": "hypehub",
+  "version": "1.0.0",
+  "description": "HypeHub Supply storefront with Stripe checkout and Supabase admin dashboard.",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step needed'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "stripe": "^14.0.0"
+  }
+}
