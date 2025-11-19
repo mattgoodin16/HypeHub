@@ -70,4 +70,7 @@ export async function POST(req) {
   }
 
   return new Response('OK', { status: 200 });
+  export const config = {
+  runtime: 'nodejs'
+};
 }
