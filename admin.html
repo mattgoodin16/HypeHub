@@ -88,13 +88,8 @@
         }
       });
 
-      if (res.status === 401) {
-        throw new Error('Unauthorized');
-      }
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch');
-      }
+      if (res.status === 401) throw new Error('Unauthorized');
+      if (!res.ok) throw new Error('Failed');
 
       const data = await res.json();
       return data.orders || [];
@@ -114,25 +109,25 @@
         const itemsHtml = (o.items || [])
           .map(i => {
             const lineTotal = (i.unit_amount * i.quantity / 100).toFixed(2);
-            return \`<li>\${i.quantity} × \${i.name} (\${i.color || '-'}, \${i.size || '-'}) - $\${lineTotal}</li>\`;
+            return `<li>${i.quantity} × ${i.name} (${i.color || '-'}, ${i.size || '-'}) - $${lineTotal}</li>`;
           })
           .join('');
 
-        return \`
+        return `
           <div class="admin-order-card">
             <div class="admin-order-header">
               <div>
-                <strong>$\${total}</strong>
-                <div style="font-size:0.8rem; color:#9ca3af;">\${email}</div>
+                <strong>$${total}</strong>
+                <div style="font-size:0.8rem; color:#9ca3af;">${email}</div>
               </div>
               <div style="font-size:0.75rem; color:#9ca3af; text-align:right;">
-                <div>\${created}</div>
-                <div style="opacity:0.8;">\${o.currency?.toUpperCase() || 'USD'}</div>
+                <div>${created}</div>
+                <div style="opacity:0.8;">${(o.currency || 'usd').toUpperCase()}</div>
               </div>
             </div>
-            <ul class="admin-order-items">\${itemsHtml}</ul>
+            <ul class="admin-order-items">${itemsHtml}</ul>
           </div>
-        \`;
+        `;
       }).join('');
     }
 
@@ -153,9 +148,7 @@
     });
 
     passInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        loginBtn.click();
-      }
+      if (e.key === 'Enter') loginBtn.click();
     });
   </script>
 </body>
