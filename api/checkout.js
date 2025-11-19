@@ -1,26 +1,22 @@
-// api/checkout.js
-const Stripe = require('stripe');
+import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    res.status(405).send('Method not allowed');
-    return;
-  }
-
+export async function POST(req) {
   try {
-    const { items, origin } = req.body;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const lineItems = items.map(item => ({
+    const body = await req.json();
+    const items = body.items;
+    const origin = body.origin;
+
+    const lineItems = items.map((item) => ({
       price_data: {
         currency: 'usd',
         product_data: {
           name: item.name,
           metadata: {
+            id: item.id,
             color: item.color,
-            size: item.size,
-            product_id: item.id
+            size: item.size
           }
         },
         unit_amount: Math.round(item.price * 100)
@@ -36,9 +32,10 @@ module.exports = async (req, res) => {
       cancel_url: `${origin}/cart.html`
     });
 
-    res.status(200).json({ url: session.url });
+    return new Response(JSON.stringify({ url: session.url }), { status: 200 });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error creating checkout session');
+    console.error('Checkout error:', err);
+    return new Response(JSON.stringify({ error: 'Checkout failed' }), { status: 500 });
   }
-};
+}
