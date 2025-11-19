@@ -37,4 +37,7 @@ export async function POST(req) {
     console.error('Checkout error:', err);
     return new Response(JSON.stringify({ error: 'Checkout failed' }), { status: 500 });
   }
+  export const config = {
+  runtime: 'nodejs'
+};
 }
