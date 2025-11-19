@@ -1,5 +1,9 @@
 import Stripe from 'stripe';
 
+export const config = {
+  runtime: 'nodejs'
+};
+
 export async function POST(req) {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -32,12 +36,15 @@ export async function POST(req) {
       cancel_url: `${origin}/cart.html`
     });
 
-    return new Response(JSON.stringify({ url: session.url }), { status: 200 });
+    return new Response(JSON.stringify({ url: session.url }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     console.error('Checkout error:', err);
-    return new Response(JSON.stringify({ error: 'Checkout failed' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Checkout failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-  export const config = {
-  runtime: 'nodejs'
-};
 }
