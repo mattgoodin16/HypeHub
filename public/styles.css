@@ -955,4 +955,18 @@ body {
     border: 1px solid rgba(148, 163, 184, 0.25);
     display: block;
   }
+  /* Product page main image sizing */
+.product-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-main-image {
+  width: 100%;
+  max-width: 420px; /* adjust this number to make smaller or bigger */
+  height: auto; /* keeps full image */
+  object-fit: contain; /* prevents cropping */
+  border-radius: 12px;
+}
 }
