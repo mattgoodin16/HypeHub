@@ -18,8 +18,10 @@ async function startCheckout(cart) {
     body: JSON.stringify({ items: cart, origin })
   });
 
-  // rest same...
-}
+  if (!res.ok) {
+    alert('Error starting checkout');
+    return;
+  }
 
   const data = await res.json();
   if (data.url) {
@@ -230,6 +232,8 @@ function removeItem(button) {
   renderCartPage();
 }
 
+/* Color bubbles on cards + image swap */
+
 function initColorBubblesOnCards() {
   const cards = document.querySelectorAll('.product-card');
   cards.forEach((card) => {
@@ -290,7 +294,7 @@ function initColorBubblesOnCards() {
   });
 }
 
-/* Make product cards clickable */
+/* Make product cards clickable (whole card) */
 
 function initProductCardLinks() {
   document.querySelectorAll('.product-card').forEach((card) => {
@@ -315,14 +319,14 @@ function initProductCardLinks() {
   });
 }
 
-/* Product data */
+/* Product data for product.html */
 
 const PRODUCTS = {
   'polo-quarter-zip': {
     id: 'polo-quarter-zip',
     name: 'Polo Ralph Lauren Estate-Rib Quarter-Zip Pullover',
     brand: 'Ralph Lauren',
-    price: 39.99,
+    price: 29.99,
     compareAt: 129.99,
     folder: 'polo',
     colors: [
@@ -345,7 +349,7 @@ const PRODUCTS = {
     id: 'yeezy-slides',
     name: 'adidas Yeezy Slides',
     brand: 'adidas',
-    price: 19.99,
+    price: 15.99,
     compareAt: 80,
     folder: 'yeezy',
     colors: [
@@ -387,7 +391,7 @@ const PRODUCTS = {
     id: 'fog-hoodie',
     name: 'Fear of God Essentials Hoodie',
     brand: 'Fear of God Essentials',
-    price: 34.99,
+    price: 24.99,
     compareAt: 109.99,
     folder: 'fog',
     colors: [
@@ -435,7 +439,7 @@ const PRODUCTS = {
     id: 'denimtears-sweatshirt',
     name: 'Denim Tears The Cotton Wreath Sweatshirt',
     brand: 'Denim Tears',
-    price: 59.99,
+    price: 34.99,
     compareAt: 249.99,
     folder: 'denimtears',
     colors: [
@@ -513,9 +517,7 @@ function initProductPage() {
     .join('');
 
   // Build size options
-  sizeSelect.innerHTML = product.sizes
-    .map((s) => `<option>${s}</option>`)
-    .join('');
+  sizeSelect.innerHTML = product.sizes.map((s) => `<option>${s}</option>`).join('');
 
   // Color bubble click = swap image
   colorContainer.querySelectorAll('.color-bubble').forEach((bubble) => {
