@@ -1,41 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product | HypeHub Supply</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="/script.js" defer></script>
 </head>
 <body>
-
-<header class="site-header">
-  <div class="logo">
-    <span class="logo-mark">HH</span>
-    <div class="logo-text">
-      <span class="logo-title">HypeHub Supply</span>
-      <span class="logo-tagline">Where Deals Meet Hype.</span>
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-mark">HH</span>
+      <div class="logo-text">
+        <span class="logo-title">HypeHub Supply</span>
+        <span class="logo-tagline">Where Deals Meet Hype.</span>
+      </div>
     </div>
-  </div>
-  <nav class="nav">
-    <a href="index.html">Home</a>
-    <a href="items.html">Shop</a>
-    <a href="about.html">About</a>
-    <a href="cart.html" class="cart-link">
-      <span>Cart</span>
-      <span class="cart-count-badge" id="cart-count">0</span>
-    </a>
-  </nav>
-</header>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="items.html" class="active">Shop</a>
+      <a href="about.html">About</a>
+      <a href="cart.html" class="cart-link">
+        <span>Cart</span>
+        <span class="cart-count-badge" id="cart-count">0</span>
+      </a>
+    </nav>
+  </header>
 
-<main class="section product-page" id="product-root">
-  <!-- JS will fill this -->
-</main>
+  <main class="section" data-product-page>
+    <header class="section-header">
+      <h1 id="product-title">Loading...</h1>
+      <p id="product-brand" class="product-brand"></p>
+    </header>
 
-<footer class="site-footer">
-  <div class="footer-inner">
-    <p>© 2025 HypeHub Supply. All rights reserved.</p>
-  </div>
-</footer>
+    <section class="product-layout">
+      <div class="product-media">
+        <img id="product-main-image" src="" alt="" class="product-main-image" />
+      </div>
+      <div class="product-detail-panel">
+        <div class="product-price">
+          <span class="old-price" id="product-compare"></span>
+          <span class="new-price" id="product-price"></span>
+        </div>
+        <p id="product-description" class="product-note"></p>
 
+        <div class="product-options">
+          <label>
+            Color
+            <div id="product-color-bubbles" class="color-bubble-row">
+              <!-- Filled by script.js -->
+            </div>
+          </label>
+          <label>
+            Size
+            <select id="product-size-select" class="size-select">
+              <!-- Filled by script.js -->
+            </select>
+          </label>
+          <label>
+            Qty
+            <input type="number" id="product-qty" class="qty-input" min="1" value="1" />
+          </label>
+        </div>
+
+        <button class="btn btn-primary" id="product-add-to-cart">Add to Cart</button>
+        <p class="deal-tag">Buy 2+ items and automatically get 10% off.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-left:0; padding-right:0;">
+      <header class="section-header">
+        <h2>Shop best sellers</h2>
+        <p>Other pieces people are grabbing right now.</p>
+      </header>
+      <div id="best-seller-grid" class="product-preview-grid">
+        <!-- Filled by script.js -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© 2025 HypeHub Supply. All rights reserved.</p>
+      <p class="footer-meta">Mock storefront for demo purposes only.</p>
+    </div>
+  </footer>
 </body>
 </html>
