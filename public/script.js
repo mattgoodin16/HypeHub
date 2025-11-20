@@ -18,10 +18,8 @@ async function startCheckout(cart) {
     body: JSON.stringify({ items: cart, origin })
   });
 
-  if (!res.ok) {
-    alert('Error starting checkout');
-    return;
-  }
+  // rest same...
+}
 
   const data = await res.json();
   if (data.url) {
