@@ -19,46 +19,41 @@ export async function POST(req) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature error:', err.message);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    console.error('Webhook signature verification failed:', err);
+    return new Response('Invalid signature', { status: 400 });
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
 
     try {
-      const lineItems = await stripe.checkout.sessions.listLineItems(
-        session.id,
-        { limit: 100 }
-      );
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+        limit: 100
+      });
 
-      const { data: insertedOrders, error: orderError } = await supabase
+      const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           stripe_session_id: session.id,
-          email: session.customer_details?.email || null,
+          customer_email: session.customer_details?.email || null,
           amount_total: session.amount_total,
-          currency: session.currency || 'usd'
+          currency: session.currency,
+          payment_status: session.payment_status
         })
         .select()
-        .limit(1);
+        .single();
 
       if (orderError) throw orderError;
-      const order = insertedOrders[0];
 
       const itemsToInsert = lineItems.data.map((li) => ({
         order_id: order.id,
-        product_id: li.price?.product || li.description,
-        name: li.description,
-        color: li.price?.product_data?.metadata?.color || null,
-        size: li.price?.product_data?.metadata?.size || null,
-        unit_amount: li.amount_subtotal / li.quantity,
-        quantity: li.quantity
+        product_name: li.description,
+        quantity: li.quantity,
+        unit_amount: li.price?.unit_amount || 0,
+        currency: li.price?.currency || 'usd'
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(itemsToInsert);
+      const { error: itemsError } = await supabase.from('order_items').insert(itemsToInsert);
 
       if (itemsError) throw itemsError;
 
@@ -70,7 +65,8 @@ export async function POST(req) {
   }
 
   return new Response('OK', { status: 200 });
-  export const config = {
+}
+
+export const config = {
   runtime: 'nodejs'
 };
-}
