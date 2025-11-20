@@ -12,7 +12,7 @@ function loadCart() {
 async function startCheckout(cart) {
   const origin = window.location.origin;
 
-  const res = await fetch('/api/checkout, {
+  const res = await fetch('/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ items: cart, origin })
@@ -204,8 +204,8 @@ function renderCartPage() {
   const checkoutBtn = root.querySelector('.summary-checkout');
   if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
-     const cart = loadCart();
-startCheckout(cart);
+      const cart = loadCart();
+      startCheckout(cart);
     });
   }
 }
@@ -243,7 +243,6 @@ function initColorBubblesOnCards() {
 
     if (!colorSelect || !bubbles.length) return;
 
-    // Helper to update the card image based on a color label
     function updateCardImageFromColor(label) {
       if (!product || !img) return;
       const match =
@@ -258,7 +257,6 @@ function initColorBubblesOnCards() {
       img.src = `/images/${product.folder}/${match.key}.jpg`;
     }
 
-    // Initial active bubble based on current select value
     const current = colorSelect.value;
     let activeBubble =
       Array.from(bubbles).find(
@@ -279,24 +277,22 @@ function initColorBubblesOnCards() {
         e.stopPropagation();
         const label = bubble.dataset.color;
 
-        // Sync the select value
         Array.from(colorSelect.options).forEach((opt) => {
           if (opt.text === label || opt.text.startsWith(label) || label.startsWith(opt.text)) {
             opt.selected = true;
           }
         });
 
-        // Active state
         bubbles.forEach((b) => b.classList.remove('active'));
         bubble.classList.add('active');
 
-        // Swap card image
         updateCardImageFromColor(label);
       });
     });
   });
 }
-/* Make "View details" buttons go to product page */
+
+/* Make product cards clickable */
 
 function initProductCardLinks() {
   document.querySelectorAll('.product-card').forEach((card) => {
@@ -306,7 +302,6 @@ function initProductCardLinks() {
     card.addEventListener('click', (e) => {
       const target = e.target;
 
-      // Do NOT navigate when clicking these
       if (
         target.closest('.add-to-cart') ||
         target.closest('.color-bubble') ||
@@ -322,7 +317,7 @@ function initProductCardLinks() {
   });
 }
 
-/* Product data for product.html */
+/* Product data */
 
 const PRODUCTS = {
   'polo-quarter-zip': {
@@ -564,7 +559,7 @@ function initProductPage() {
       .map((pid) => {
         const p = PRODUCTS[pid];
         const thumbColor = p.colors[0];
-        const imgSrc = `images/${p.folder}/${thumbColor.key}.jpg`;
+        const imgSrc = `/images/${p.folder}/${thumbColor.key}.jpg`;
         return `
         <a href="product.html?id=${encodeURIComponent(p.id)}" class="best-seller-card">
           <img src="${imgSrc}" alt="${p.name}">
