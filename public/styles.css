@@ -494,6 +494,29 @@ body {
 .cart-layout .empty-cart p {
   margin-bottom: 12px;
 }
+.promo-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.promo-input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.promo-input::placeholder {
+  color: var(--muted);
+}
+
+.promo-clear {
+  margin-top: 4px;
+}
 
 .cart-container {
   display: grid;
