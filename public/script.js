@@ -1,4 +1,14 @@
 const CART_KEY = 'hypehubCart';
+const PROMO_KEY = 'hypehubPromo';
+
+const PROMO_CODES = {
+  '18492': 0.10,   // 10%
+  '30751': 0.15,   // 15%
+  '52937': 0.175,  // 17.5%
+  '64018': 0.20,   // 20%
+  '75293': 0.225,  // 22.5%
+  '89640': 0.25    // 25%
+};
 
 function loadCart() {
   try {
@@ -9,13 +19,43 @@ function loadCart() {
   }
 }
 
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+function loadPromo() {
+  try {
+    const raw = localStorage.getItem(PROMO_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function savePromo(promo) {
+  if (!promo) {
+    localStorage.removeItem(PROMO_KEY);
+  } else {
+    localStorage.setItem(PROMO_KEY, JSON.stringify(promo));
+  }
+}
+
+function clearPromo() {
+  localStorage.removeItem(PROMO_KEY);
+}
+
 async function startCheckout(cart) {
   const origin = window.location.origin;
+  const promo = loadPromo();
 
   const res = await fetch('/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items: cart, origin })
+    body: JSON.stringify({
+      items: cart,
+      origin,
+      promoCode: promo ? promo.code : null
+    })
   });
 
   if (!res.ok) {
@@ -29,10 +69,6 @@ async function startCheckout(cart) {
   } else {
     alert('No checkout URL returned.');
   }
-}
-
-function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
 function getCartCount(cart) {
@@ -118,6 +154,7 @@ function renderCartPage() {
   if (!root) return;
 
   const cart = loadCart();
+  const promo = loadPromo();
 
   if (!cart.length) {
     root.innerHTML = `
@@ -131,9 +168,20 @@ function renderCartPage() {
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = getCartCount(cart);
-  const discountEligible = totalItems >= 2;
-  const discountAmount = discountEligible ? subtotal * 0.1 : 0;
-  const total = subtotal - discountAmount;
+
+  // Auto deal: Buy 2, get 10% off
+  const autoDiscountEligible = totalItems >= 2;
+  const autoDiscountAmount = autoDiscountEligible ? subtotal * 0.1 : 0;
+
+  // Promo discount
+  let promoDiscountAmount = 0;
+  if (promo && PROMO_CODES[promo.code]) {
+    promoDiscountAmount = subtotal * PROMO_CODES[promo.code];
+  }
+
+  // Promo overrides auto-discount if present
+  const effectiveDiscount = promo ? promoDiscountAmount : autoDiscountAmount;
+  const total = subtotal - effectiveDiscount;
 
   const rowsHtml = cart
     .map(
@@ -161,6 +209,15 @@ function renderCartPage() {
     )
     .join('');
 
+  const autoDiscountLabel = autoDiscountEligible
+    ? (promo ? 'Overridden by promo' : '-' + formatMoney(autoDiscountAmount))
+    : 'Add 2+ items';
+
+  const promoLabel =
+    promo && promoDiscountAmount > 0
+      ? `-${formatMoney(promoDiscountAmount)} (${promo.code})`
+      : 'Add code below';
+
   root.innerHTML = `
     <div class="cart-container">
       <div class="cart-items">
@@ -178,17 +235,38 @@ function renderCartPage() {
         </div>
         <div class="summary-row">
           <span>Buy 2, get 10% off</span>
-          <span>${discountEligible ? '-' + formatMoney(discountAmount) : 'Add 2+ items'}</span>
+          <span>${autoDiscountLabel}</span>
         </div>
+        <div class="summary-row">
+          <span>Promo code</span>
+          <span>${promoLabel}</span>
+        </div>
+
+        <div class="promo-row">
+          <input
+            id="promo-input"
+            class="promo-input"
+            type="text"
+            maxlength="5"
+            placeholder="Enter 5-digit code"
+          />
+          <button class="btn btn-outline promo-apply" id="promo-apply">Apply</button>
+        </div>
+        ${promo ? '<button class="link-btn promo-clear" id="promo-clear">Remove promo</button>' : ''}
+
         <div class="summary-row summary-total">
           <span>Total</span>
           <span>${formatMoney(total)}</span>
         </div>
         <button class="btn btn-primary summary-checkout">Checkout</button>
+        <p class="summary-note">
+          Promo codes override the Buy 2, get 10% off deal. Final pricing is confirmed at checkout.
+        </p>
       </aside>
     </div>
   `;
 
+  // quantity controls
   root.querySelectorAll('.qty-btn.plus').forEach((btn) => {
     btn.addEventListener('click', () => adjustQuantity(btn, 1));
   });
@@ -206,6 +284,40 @@ function renderCartPage() {
     checkoutBtn.addEventListener('click', () => {
       const cart = loadCart();
       startCheckout(cart);
+    });
+  }
+
+  // promo stuff
+  const applyBtn = root.querySelector('#promo-apply');
+  const input = root.querySelector('#promo-input');
+  const clearBtn = root.querySelector('#promo-clear');
+
+  if (applyBtn && input) {
+    applyBtn.addEventListener('click', () => {
+      const code = input.value.trim();
+      if (!code || code.length !== 5) {
+        alert('Enter a 5-digit promo code.');
+        return;
+      }
+      if (!PROMO_CODES[code]) {
+        alert('Invalid promo code.');
+        return;
+      }
+      savePromo({ code });
+      renderCartPage();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        applyBtn.click();
+      }
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      clearPromo();
+      renderCartPage();
     });
   }
 }
